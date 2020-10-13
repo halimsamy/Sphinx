@@ -68,6 +68,8 @@ namespace Sphinx
 
             if (outputDir != "" && !Directory.Exists(outputDir)) Directory.CreateDirectory(outputDir);
 
+            if (File.Exists(outputFile)) File.Delete(outputFile);
+
             this.Module.Write(outputFile, this.WriterOptions);
         }
     }
