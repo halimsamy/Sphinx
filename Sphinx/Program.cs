@@ -16,6 +16,7 @@ namespace Sphinx
 {
     internal class Program
     {
+        public static IConfigurationRoot Config;
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private static void Main(string[] args)
@@ -28,15 +29,15 @@ namespace Sphinx
                 Logger.Fatal("Copyright (C) 2020 Klito. All rights reserved.");
                 Logger.Info($"Running on {Environment.OSVersion} - {IntPtr.Size * 8} bit, .NET {Environment.Version}");
 
-                var config = BuildConfiguration(args);
+                Config = BuildConfiguration(args);
 
-                using var servicesProvider = BuildServiceProvider(config);
+                using var servicesProvider = BuildServiceProvider();
 
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
 
                 Logger.Info("Loading targets...");
-                var contexts = Context.Resolve(config);
+                var contexts = Context.Resolve();
 
                 if (contexts.Count > 0)
                 {
@@ -45,13 +46,11 @@ namespace Sphinx
 
                     var components = Component.Resolve()
                         .Select(t => servicesProvider.GetRequiredService(t) as Component)
+                        .Where(c => contexts.Any(ctx => ctx.IsEnabled(c)))
                         .ToList();
-                    Logger.Debug($"{components.Count} component(s) resolved.");
                     components.Sort();
 
-
-                    foreach (var component in components.Where(c =>
-                        contexts.Any(ctx => ctx.IsEnabled(c))))
+                    foreach (var component in components)
                     {
                         Logger.Info($"Applying '{component.Name}'...");
 
@@ -139,7 +138,7 @@ namespace Sphinx
             return config;
         }
 
-        private static ServiceProvider BuildServiceProvider(IConfigurationRoot config)
+        private static ServiceProvider BuildServiceProvider()
         {
             var s = new ServiceCollection()
                 .AddLogging(loggingBuilder =>
@@ -147,7 +146,7 @@ namespace Sphinx
                     // configure Logging with NLog
                     loggingBuilder.ClearProviders();
                     loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-                    loggingBuilder.AddNLog(config);
+                    loggingBuilder.AddNLog(Config);
                 });
 
             Component.Resolve().ForEach(ct => s.AddTransient(ct));

@@ -13,14 +13,13 @@ namespace Sphinx
     /// </summary>
     public class Context
     {
-        public static IConfigurationRoot ProjectConfig;
-        public readonly IConfigurationSection Config;
+        public readonly string Name;
         public readonly ModuleDefMD Module;
         public readonly ModuleWriterOptions WriterOptions;
 
-        public Context(IConfigurationSection config, ModuleDefMD module)
+        public Context(string name, ModuleDefMD module)
         {
-            this.Config = config;
+            this.Name = name;
             this.Module = module;
             this.WriterOptions = new ModuleWriterOptions(module)
             {
@@ -29,28 +28,28 @@ namespace Sphinx
         }
 
         /// <summary>
-        ///     Resolve all Contexts from a Configuration.
+        ///     Resolve all Contexts.
         /// </summary>
-        /// <param name="config"></param>
         /// <returns></returns>
-        public static List<Context> Resolve(IConfigurationRoot config)
+        public static List<Context> Resolve()
         {
             var modCtx = ModuleDef.CreateModuleContext();
 
-            ProjectConfig = config;
-            return config.GetSection("Target").GetChildren().Select(t =>
-                    new Context(t, ModuleDefMD.Load(t.GetValue<string>("InputFile"), modCtx)))
+            return Program.Config.GetSection("Target").GetChildren().Select(t =>
+                    new Context(t.Key, ModuleDefMD.Load(t.GetValue<string>("InputFile"), modCtx)))
                 .ToList();
         }
 
         public T GetParam<T>(string key, T defaultValue = default)
         {
-            return this.Config.GetValue(key, ProjectConfig.GetValue(key, defaultValue));
+            return Program.Config.GetValue($"Target:{this.Name}:{key}",
+                Program.Config.GetValue(key, defaultValue));
         }
 
         public object GetParam(Type type, string key, object defaultValue)
         {
-            return this.Config.GetValue(type, key, ProjectConfig.GetValue(type, key, defaultValue));
+            return Program.Config.GetValue(type, $"Target:{this.Name}:{key}",
+                Program.Config.GetValue(type, key, defaultValue));
         }
 
         public bool IsEnabled(Component component)
@@ -60,8 +59,8 @@ namespace Sphinx
 
         public void WriteModule()
         {
-            var inputFile = this.Config.GetValue<string>("InputFile");
-            var outputFile = this.Config.GetValue<string>("OutputFile");
+            var inputFile = Program.Config.GetValue<string>($"Target:{this.Name}:InputFile");
+            var outputFile = Program.Config.GetValue<string>($"Target:{this.Name}:OutputFile");
             var outputDir = Path.GetDirectoryName(outputFile);
 
             if (string.IsNullOrEmpty(outputFile))
