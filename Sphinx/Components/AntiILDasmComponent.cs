@@ -20,7 +20,6 @@ namespace Sphinx.Components
         public override string Description =>
             "Marks the modules with a attribute that discourage ILDasm from disassembling it.";
 
-        public override ComponentPreset Preset => ComponentPreset.Minimum;
         public override ComponentUsage Usage => ComponentUsage.Protecting;
         public override int Priority => 0;
 

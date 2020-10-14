@@ -29,9 +29,6 @@ namespace Sphinx
 
                 var config = BuildConfiguration(args);
 
-                var preset = config.GetValue("Preset", ComponentPreset.None);
-                Logger.Info($"Using preset: {preset}");
-
                 using var servicesProvider = BuildServiceProvider(config);
 
                 var stopwatch = new Stopwatch();
@@ -57,20 +54,20 @@ namespace Sphinx
 
 
                 foreach (var component in components.Where(c =>
-                    contexts.Any(ctx => ctx.IsEnabled(c, preset))))
+                    contexts.Any(ctx => ctx.IsEnabled(c))))
                 {
                     Logger.Info($"Applying '{component.Name}'...");
 
                     Logger.Trace($"'{component.Name}' Analyzing phase...");
-                    foreach (var context in contexts.Where(context => context.IsEnabled(component, preset)))
+                    foreach (var context in contexts.Where(context => context.IsEnabled(component)))
                         component.Analyze(context);
 
                     Logger.Trace($"'{component.Name}' Executing phase...");
-                    foreach (var context in contexts.Where(context => context.IsEnabled(component, preset)))
+                    foreach (var context in contexts.Where(context => context.IsEnabled(component)))
                         component.Execute(context);
 
                     Logger.Trace($"'{component.Name}' Finalizing phase...");
-                    foreach (var context in contexts.Where(context => context.IsEnabled(component, preset)))
+                    foreach (var context in contexts.Where(context => context.IsEnabled(component)))
                         component.Finalize(context);
                 }
 

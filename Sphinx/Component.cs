@@ -25,11 +25,6 @@ namespace Sphinx
         public abstract string Description { get; }
 
         /// <summary>
-        ///     The preset this component is in.
-        /// </summary>
-        public abstract ComponentPreset Preset { get; }
-
-        /// <summary>
         ///     The usage of this component.
         /// </summary>
         public abstract ComponentUsage Usage { get; }
@@ -76,7 +71,7 @@ namespace Sphinx
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.Id, this.Name, this.Description, this.Preset, this.Usage, this.Priority);
+            return HashCode.Combine(this.Id, this.Name, this.Description, this.Usage, this.Priority);
         }
 
 
@@ -98,7 +93,7 @@ namespace Sphinx
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return this.Id == other.Id && this.Name == other.Name && this.Description == other.Description &&
-                   this.Preset == other.Preset && this.Usage == other.Usage && this.Priority == other.Priority;
+                   this.Usage == other.Usage && this.Priority == other.Priority;
         }
     }
 }

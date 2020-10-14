@@ -47,10 +47,9 @@ namespace Sphinx
             return this.Config.GetValue(key, ProjectConfig.GetValue(key, defaultValue));
         }
 
-        public bool IsEnabled(Component component, ComponentPreset preset = ComponentPreset.None)
+        public bool IsEnabled(Component component)
         {
-            return this.GetOptionValue(component.Id,
-                preset != ComponentPreset.None && preset >= component.Preset);
+            return this.GetOptionValue(component.Id, false);
         }
 
         public void WriteModule()

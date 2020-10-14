@@ -27,7 +27,6 @@ namespace Sphinx.Components
         public override string Id => "ConstRemoval";
         public override string Name => "Constants Removal";
         public override string Description => "Encodes constants in the code making it harder to read/understand.";
-        public override ComponentPreset Preset => ComponentPreset.Normal;
         public override ComponentUsage Usage => ComponentUsage.Protecting;
 
         /// <summary>

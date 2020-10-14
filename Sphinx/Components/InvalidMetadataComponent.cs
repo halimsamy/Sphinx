@@ -21,7 +21,6 @@ namespace Sphinx.Components
         public override string Description =>
             "Adds invalid metadata to modules to prevent disassembler/decompiler from opening them.";
 
-        public override ComponentPreset Preset => ComponentPreset.Minimum;
         public override ComponentUsage Usage => ComponentUsage.Protecting;
         public override int Priority => 0;
 
