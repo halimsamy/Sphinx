@@ -61,17 +61,31 @@ namespace Sphinx
         public void WriteModule()
         {
             var inputFile = this.Config.GetValue<string>("InputFile");
-            var outputFile = this.Config.GetValue("OutputFile", inputFile);
+            var outputFile = this.Config.GetValue<string>("OutputFile");
             var outputDir = Path.GetDirectoryName(outputFile);
+
+            if (string.IsNullOrEmpty(outputFile))
+            {
+                outputDir = this.GetParam<string>("OutputDir");
+                outputFile = !string.IsNullOrEmpty(outputDir)
+                    ? Path.Combine(outputDir, Path.GetFileName(inputFile))
+                    : inputFile;
+            }
 
             if (outputFile == inputFile)
             {
+                var counter = 0;
                 var backup = inputFile + ".bak";
-                if (File.Exists(backup)) File.Delete(backup);
+                while (File.Exists(backup))
+                {
+                    counter++;
+                    backup = inputFile + "_" + counter + ".bak";
+                }
+
                 File.Move(inputFile, backup);
             }
 
-            if (outputDir != "" && !Directory.Exists(outputDir)) Directory.CreateDirectory(outputDir);
+            if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir)) Directory.CreateDirectory(outputDir);
 
             if (File.Exists(outputFile)) File.Delete(outputFile);
 

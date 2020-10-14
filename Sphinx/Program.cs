@@ -37,42 +37,42 @@ namespace Sphinx
                 Logger.Info("Loading targets...");
                 var contexts = Context.Resolve(config);
 
-                if (contexts.Count <= 0)
+                if (contexts.Count > 0)
                 {
-                    Logger.Warn("No targets were found.");
-                    goto end;
-                }
+                    Logger.Info("Resolving dependecny...");
+                    contexts = ContextDependencyResolver.Sort(contexts);
 
-                Logger.Info("Resolving dependecny...");
-                contexts = ContextDependencyResolver.Sort(contexts);
-
-                var components = Component.Resolve()
-                    .Select(t => servicesProvider.GetRequiredService(t) as Component)
-                    .ToList();
-                Logger.Debug($"{components.Count} component(s) resolved.");
-                components.Sort();
+                    var components = Component.Resolve()
+                        .Select(t => servicesProvider.GetRequiredService(t) as Component)
+                        .ToList();
+                    Logger.Debug($"{components.Count} component(s) resolved.");
+                    components.Sort();
 
 
-                foreach (var component in components.Where(c =>
-                    contexts.Any(ctx => ctx.IsEnabled(c))))
-                {
-                    Logger.Info($"Applying '{component.Name}'...");
-
-                    for (ExecutionPhase phase = 0; phase <= ExecutionPhase.Finalize; phase++)
+                    foreach (var component in components.Where(c =>
+                        contexts.Any(ctx => ctx.IsEnabled(c))))
                     {
-                        Logger.Trace($"'{component.Name}' {phase} phase...");
-                        foreach (var context in contexts.Where(context => context.IsEnabled(component)))
+                        Logger.Info($"Applying '{component.Name}'...");
+
+                        for (ExecutionPhase phase = 0; phase <= ExecutionPhase.Finalize; phase++)
                         {
-                            component.Switch(context);
-                            component.Execute(context, phase);
+                            Logger.Trace($"'{component.Name}' {phase} phase...");
+                            foreach (var context in contexts.Where(context => context.IsEnabled(component)))
+                            {
+                                component.Switch(context);
+                                component.Execute(context, phase);
+                            }
                         }
                     }
+
+                    Logger.Info("Saving targets...");
+                    contexts.ForEach(ctx => ctx.WriteModule());
+                }
+                else
+                {
+                    Logger.Warn("No targets were found.");
                 }
 
-                Logger.Info("Saving targets...");
-                contexts.ForEach(ctx => ctx.WriteModule());
-
-                end:
                 stopwatch.Stop();
                 Logger.Info($"Done. Total elapsed time ({stopwatch.Elapsed})");
             }
