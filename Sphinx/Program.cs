@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using dnlib.DotNet.Writer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -75,6 +76,11 @@ namespace Sphinx
 
                 stopwatch.Stop();
                 Logger.Info($"Done. Total elapsed time ({stopwatch.Elapsed})");
+            }
+            catch (ModuleWriterException e)
+            {
+                Logger.Fatal("Unable to save targets.");
+                Logger.Debug(e);
             }
             catch (Exception ex)
             {
