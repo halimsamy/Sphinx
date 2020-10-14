@@ -62,7 +62,10 @@ namespace Sphinx
                     {
                         Logger.Trace($"'{component.Name}' {phase} phase...");
                         foreach (var context in contexts.Where(context => context.IsEnabled(component)))
+                        {
+                            component.Switch(context);
                             component.Execute(context, phase);
+                        }
                     }
                 }
 

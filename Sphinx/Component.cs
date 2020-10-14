@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Sphinx
 {
@@ -60,6 +61,21 @@ namespace Sphinx
         public override int GetHashCode()
         {
             return HashCode.Combine(this.Id, this.Name, this.Description, this.Usage, this.Priority);
+        }
+
+        /// <summary>
+        ///     Switch the Component Params to the given Context.
+        /// </summary>
+        /// <param name="ctx"></param>
+        public void Switch(Context ctx)
+        {
+            foreach (var paramField in this.GetType().GetFields()
+                .Where(f => f.GetCustomAttribute<ComponentParamAttribute>() != null))
+            {
+                var attr = paramField.GetCustomAttribute<ComponentParamAttribute>();
+                paramField.SetValue(this,
+                    ctx.GetParam(paramField.FieldType, $"{this.Id}:{attr.Name}", attr.DefaultValue));
+            }
         }
 
 

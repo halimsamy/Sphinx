@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using dnlib.DotNet;
@@ -23,7 +24,7 @@ namespace Sphinx
             this.Module = module;
             this.WriterOptions = new ModuleWriterOptions(module)
             {
-                WritePdb = this.GetOptionValue("WritePdb", true)
+                WritePdb = this.GetParam("WritePdb", true)
             };
         }
 
@@ -42,14 +43,19 @@ namespace Sphinx
                 .ToList();
         }
 
-        public T GetOptionValue<T>(string key, T defaultValue = default)
+        public T GetParam<T>(string key, T defaultValue = default)
         {
             return this.Config.GetValue(key, ProjectConfig.GetValue(key, defaultValue));
         }
 
+        public object GetParam(Type type, string key, object defaultValue)
+        {
+            return this.Config.GetValue(type, key, ProjectConfig.GetValue(type, key, defaultValue));
+        }
+
         public bool IsEnabled(Component component)
         {
-            return this.GetOptionValue(component.Id, false);
+            return this.GetParam(component.Id, false);
         }
 
         public void WriteModule()
