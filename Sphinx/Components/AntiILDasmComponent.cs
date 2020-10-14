@@ -23,13 +23,10 @@ namespace Sphinx.Components
         public override ComponentUsage Usage => ComponentUsage.Protecting;
         public override int Priority => 0;
 
-        public override void Analyze(Context ctx)
+        public override void Execute(Context ctx, ExecutionPhase phase)
         {
-            // ignored
-        }
+            if (phase != ExecutionPhase.Apply) return;
 
-        public override void Execute(Context ctx)
-        {
             var attrRef =
                 ctx.Module.CorLibTypes
                     .GetTypeRef("System.Runtime.CompilerServices", "SuppressIldasmAttribute");
@@ -40,11 +37,6 @@ namespace Sphinx.Components
             var attr = new CustomAttribute(ctorRef);
             if (ctx.Module.CustomAttributes.All(a => a.ToString() != attr.ToString()))
                 ctx.Module.CustomAttributes.Add(attr);
-        }
-
-        public override void Finalize(Context ctx)
-        {
-            // ignored
         }
     }
 }

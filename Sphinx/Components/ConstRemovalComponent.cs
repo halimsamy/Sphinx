@@ -34,7 +34,14 @@ namespace Sphinx.Components
         /// </summary>
         public override int Priority => 1;
 
-        public override void Analyze(Context ctx)
+
+        public override void Execute(Context ctx, ExecutionPhase phase)
+        {
+            if (phase == ExecutionPhase.Analyze) this.Analyze(ctx);
+            else if (phase == ExecutionPhase.Apply) this.Apply(ctx);
+        }
+
+        private void Analyze(Context ctx)
         {
             foreach (var type in ctx.Module.GetTypes())
             foreach (var method in type.Methods)
@@ -51,7 +58,7 @@ namespace Sphinx.Components
             }
         }
 
-        public override void Execute(Context ctx)
+        private void Apply(Context ctx)
         {
             foreach (var (instruction, method) in this._loads.Where(p => p.Value.DeclaringType.Module == ctx.Module))
             {
@@ -85,11 +92,6 @@ namespace Sphinx.Components
                     body.Instructions.Insert(instructionIndex + 2, OpCodes.Call.ToInstruction(decoderMethod));
                 }
             }
-        }
-
-        public override void Finalize(Context ctx)
-        {
-            //
         }
 
         private Tuple<MethodDef, byte[]> CreateDecodeMethod(ModuleDef mod, TypeDef type)

@@ -45,22 +45,10 @@ namespace Sphinx
         }
 
         /// <summary>
-        ///     Runs the component analyzing phase.
+        ///     Runs the component with a specific executing phase.
         /// </summary>
         /// <param name="ctx"></param>
-        public abstract void Analyze(Context ctx);
-
-        /// <summary>
-        ///     Runs the component executing phase.
-        /// </summary>
-        /// <param name="ctx"></param>
-        public abstract void Execute(Context ctx);
-
-        /// <summary>
-        ///     Runs the component finalizing phase.
-        /// </summary>
-        /// <param name="ctx"></param>
-        public abstract void Finalize(Context ctx);
+        public abstract void Execute(Context ctx, ExecutionPhase phase);
 
         public override bool Equals(object obj)
         {

@@ -24,19 +24,10 @@ namespace Sphinx.Components
         public override ComponentUsage Usage => ComponentUsage.Protecting;
         public override int Priority => 0;
 
-        public override void Analyze(Context ctx)
+        public override void Execute(Context ctx, ExecutionPhase phase)
         {
-            // ignored
-        }
-
-        public override void Execute(Context ctx)
-        {
+            if (phase != ExecutionPhase.Apply) return;
             ctx.WriterOptions.WriterEvent += this.WriterOptions_WriterEvent;
-        }
-
-        public override void Finalize(Context ctx)
-        {
-            // ignored
         }
 
         private void WriterOptions_WriterEvent(object sender, ModuleWriterEventArgs e)

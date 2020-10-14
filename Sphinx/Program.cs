@@ -58,17 +58,12 @@ namespace Sphinx
                 {
                     Logger.Info($"Applying '{component.Name}'...");
 
-                    Logger.Trace($"'{component.Name}' Analyzing phase...");
-                    foreach (var context in contexts.Where(context => context.IsEnabled(component)))
-                        component.Analyze(context);
-
-                    Logger.Trace($"'{component.Name}' Executing phase...");
-                    foreach (var context in contexts.Where(context => context.IsEnabled(component)))
-                        component.Execute(context);
-
-                    Logger.Trace($"'{component.Name}' Finalizing phase...");
-                    foreach (var context in contexts.Where(context => context.IsEnabled(component)))
-                        component.Finalize(context);
+                    for (ExecutionPhase phase = 0; phase <= ExecutionPhase.Finalize; phase++)
+                    {
+                        Logger.Trace($"'{component.Name}' {phase} phase...");
+                        foreach (var context in contexts.Where(context => context.IsEnabled(component)))
+                            component.Execute(context, phase);
+                    }
                 }
 
                 Logger.Info("Saving targets...");
