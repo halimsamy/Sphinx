@@ -77,13 +77,13 @@ namespace Sphinx.Components
                     var r = RandomNumberGenerator.GetInt32(8, 16);
                     for (var i = 0; i < r; i++)
                         writer.Metadata.TablesHeap.ENCLogTable.Add(new RawENCLogRow(
-                            Convert.ToUInt32(Math.Abs(RandomNumberGenerator.GetInt32(int.MaxValue))),
-                            Convert.ToUInt32(Math.Abs(RandomNumberGenerator.GetInt32(int.MaxValue)))));
+                            (uint) RandomNumberGenerator.GetInt32(int.MaxValue),
+                            (uint) RandomNumberGenerator.GetInt32(int.MaxValue)));
 
                     r = RandomNumberGenerator.GetInt32(8, 16);
                     for (var i = 0; i < r; i++)
-                        writer.Metadata.TablesHeap.ENCMapTable.Add(new RawENCMapRow(
-                            Convert.ToUInt32(Math.Abs(RandomNumberGenerator.GetInt32(int.MaxValue)))));
+                        writer.Metadata.TablesHeap.ENCMapTable.Add(
+                            new RawENCMapRow((uint) RandomNumberGenerator.GetInt32(int.MaxValue)));
 
                     //Utility.Shuffle(writer.MetaData.TablesHeap.NestedClassTable);
                     Utility.Shuffle(writer.Metadata.TablesHeap.ManifestResourceTable);
@@ -92,7 +92,7 @@ namespace Sphinx.Components
                     // Add extra data. This will break most libraries that open .NET assemblies.
                     // Any value can be written here.
                     writer.TheOptions.MetadataOptions.TablesHeapOptions.ExtraData =
-                        Convert.ToUInt32(Math.Abs(RandomNumberGenerator.GetInt32(int.MaxValue)));
+                        (uint) RandomNumberGenerator.GetInt32(int.MaxValue);
                     writer.TheOptions.MetadataOptions.TablesHeapOptions.UseENC = false;
                     writer.TheOptions.MetadataOptions.MetadataHeaderOptions.VersionString += "\0\0\0\0";
 
@@ -106,7 +106,7 @@ namespace Sphinx.Components
                     // This is normally 16 but setting it to a value less than 14 will fool some
                     // apps into thinking that there's no .NET metadata available
                     writer.TheOptions.PEHeadersOptions.NumberOfRvaAndSizes =
-                        Convert.ToUInt32(RandomNumberGenerator.GetInt32(0, 13));
+                        (uint) RandomNumberGenerator.GetInt32(0, 14);
 
 
                     break;

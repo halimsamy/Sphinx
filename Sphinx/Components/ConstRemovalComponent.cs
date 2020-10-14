@@ -290,7 +290,7 @@ namespace Sphinx.Components
 
                 if (instruction.OpCode == OpCodes.Ldstr)
                 {
-                    instruction.Operand = Utility.Xor((string) instruction.Operand, num, key);
+                    instruction.Operand = Utility.XOR((string) instruction.Operand, num, key);
 
                     body.Instructions.Insert(instructionIndex + 1, OpCodes.Ldc_I4.ToInstruction(num));
 

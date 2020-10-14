@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -31,7 +30,8 @@ namespace Sphinx
         /// <param name="buffer2">The input buffer 2.</param>
         /// <returns>The result buffer.</returns>
         /// <exception cref="System.ArgumentException">Length of the two buffers are not equal.</exception>
-        public static byte[] Xor(byte[] buffer1, byte[] buffer2)
+        // ReSharper disable once InconsistentNaming
+        public static byte[] XOR(byte[] buffer1, byte[] buffer2)
         {
             if (buffer1.Length != buffer2.Length)
                 throw new ArgumentException("Length mismatched.");
@@ -48,7 +48,8 @@ namespace Sphinx
         /// <param name="n"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static string Xor(string s, int n, byte[] key)
+        // ReSharper disable once InconsistentNaming
+        public static string XOR(string s, int n, byte[] key)
         {
             var num = s.Length;
             var array = s.ToCharArray();
@@ -77,25 +78,6 @@ namespace Sphinx
             return Path.GetRandomFileName().Replace(".", "");
         }
 
-        public static string RandomBase64Encode()
-        {
-            return Base64Encode(RandomString());
-        }
-
-        public static string Shuffle(string str)
-        {
-            var span = str.ToCharArray().AsSpan();
-            for (var i = span.Length - 1; i > 1; i--)
-            {
-                var k = RandomNumberGenerator.GetInt32(1, i + 1);
-                var tmp = span[k];
-                span[k] = span[i];
-                span[i] = tmp;
-            }
-
-            return span.ToString();
-        }
-
         public static void Shuffle<T>(IList<T> list)
         {
             for (var i = list.Count - 1; i > 1; i--)
@@ -114,9 +96,6 @@ namespace Sphinx
             for (var i = (uint) table.Rows; i > 2; i--)
             {
                 var k = Convert.ToUInt32(RandomNumberGenerator.GetInt32(1, (int) i - 1)) + 1;
-                Debug.Assert(k >= 1, $"{nameof(k)} >= 1");
-                Debug.Assert(k < i, $"{nameof(k)} < {nameof(i)}");
-                Debug.Assert(k <= table.Rows, $"{nameof(k)} <= {nameof(table)}.Rows");
 
                 var tmp = table[k];
                 table[k] = table[i];
