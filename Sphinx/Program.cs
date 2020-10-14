@@ -85,6 +85,7 @@ namespace Sphinx
             {
                 //logger.Error(ex, "Stopped program because of exception");
                 Logger.Error(ex.Message);
+                Logger.Debug(ex);
             }
             finally
             {

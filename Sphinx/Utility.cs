@@ -41,6 +41,21 @@ namespace Sphinx
             return ret;
         }
 
+        /// <summary>
+        ///     Used for <see cref="Components.ConstRemovalComponent" />
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="n"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static string Xor(string s, int n, byte[] key)
+        {
+            var num = s.Length;
+            var array = s.ToCharArray();
+            while (--num >= 0) array[num] = (char) (array[num] ^ (key[n & 15] | n));
+            return new string(array);
+        }
+
         public static string Base64Encode(byte[] buf)
         {
             return Convert.ToBase64String(buf).Trim('=').Replace('+', '$').Replace('/', '_');
