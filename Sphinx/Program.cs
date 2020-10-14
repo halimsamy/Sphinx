@@ -48,29 +48,37 @@ namespace Sphinx
                         .Select(t => servicesProvider.GetRequiredService(t) as Component)
                         .Where(c => contexts.Any(ctx => ctx.IsEnabled(c)))
                         .ToList();
-                    components.Sort();
 
-                    foreach (var component in components)
+                    if (components.Count > 0)
                     {
-                        Logger.Info($"Applying '{component.Name}'...");
+                        components.Sort();
 
-                        for (ExecutionPhase phase = 0; phase <= ExecutionPhase.Finalize; phase++)
+                        foreach (var component in components)
                         {
-                            Logger.Trace($"'{component.Name}' {phase} phase...");
-                            foreach (var context in contexts.Where(context => context.IsEnabled(component)))
+                            Logger.Info($"Applying '{component.Name}'...");
+
+                            for (ExecutionPhase phase = 0; phase <= ExecutionPhase.Finalize; phase++)
                             {
-                                component.Switch(context);
-                                component.Execute(context, phase);
+                                Logger.Trace($"'{component.Name}' {phase} phase...");
+                                foreach (var context in contexts.Where(context => context.IsEnabled(component)))
+                                {
+                                    component.Switch(context);
+                                    component.Execute(context, phase);
+                                }
                             }
                         }
-                    }
 
-                    Logger.Info("Saving targets...");
-                    contexts.ForEach(ctx => ctx.WriteModule());
+                        Logger.Info("Saving targets...");
+                        contexts.ForEach(ctx => ctx.WriteModule());
+                    }
+                    else
+                    {
+                        Logger.Fatal("There is nothing to apply to any target.");
+                    }
                 }
                 else
                 {
-                    Logger.Warn("No targets were found.");
+                    Logger.Fatal("No targets were found.");
                 }
 
                 stopwatch.Stop();
