@@ -14,15 +14,6 @@ namespace Sphinx.Components
             this._logger = logger;
         }
 
-        public override string Id => "AntiILDasm";
-        public override string Name => "Anti-ILDasm";
-
-        public override string Description =>
-            "Marks the modules with a attribute that discourage ILDasm from disassembling it.";
-
-        public override ComponentUsage Usage => ComponentUsage.Protecting;
-        public override int Priority => 0;
-
         public override void Execute(Context ctx, ExecutionPhase phase)
         {
             if (phase != ExecutionPhase.Apply) return;
@@ -38,5 +29,18 @@ namespace Sphinx.Components
             if (ctx.Module.CustomAttributes.All(a => a.ToString() != attr.ToString()))
                 ctx.Module.CustomAttributes.Add(attr);
         }
+
+        #region Details
+
+        public override string Id => "AntiILDasm";
+        public override string Name => "Anti-ILDasm";
+
+        public override string Description =>
+            "Marks the modules with a attribute that discourage ILDasm from disassembling it.";
+
+        public override ComponentUsage Usage => ComponentUsage.Protecting;
+        public override int Priority => 0;
+
+        #endregion
     }
 }

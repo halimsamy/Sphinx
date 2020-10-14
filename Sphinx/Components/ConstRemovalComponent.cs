@@ -24,74 +24,11 @@ namespace Sphinx.Components
             this._keys = new Dictionary<TypeDef, byte[]>();
         }
 
-        public override string Id => "ConstRemoval";
-        public override string Name => "Constants Removal";
-        public override string Description => "Encodes constants in the code making it harder to read/understand.";
-        public override ComponentUsage Usage => ComponentUsage.Protecting;
-
-        /// <summary>
-        ///     [EX] Should run before the Control Flow, and after the Ref Proxy.
-        /// </summary>
-        public override int Priority => 1;
-
 
         public override void Execute(Context ctx, ExecutionPhase phase)
         {
             if (phase == ExecutionPhase.Analyze) this.Analyze(ctx);
             else if (phase == ExecutionPhase.Apply) this.Apply(ctx);
-        }
-
-        private void Analyze(Context ctx)
-        {
-            foreach (var type in ctx.Module.GetTypes())
-            foreach (var method in type.Methods)
-            {
-                if (!method.HasBody) continue;
-
-                foreach (var instruction in method.Body.Instructions)
-                    if (instruction.OpCode == OpCodes.Ldstr)
-                    {
-                        var operand = (string) instruction.Operand;
-                        if (string.IsNullOrEmpty(operand)) continue;
-                        this._loads.Add(instruction, method);
-                    }
-            }
-        }
-
-        private void Apply(Context ctx)
-        {
-            foreach (var (instruction, method) in this._loads.Where(p => p.Value.DeclaringType.Module == ctx.Module))
-            {
-                // shortcuts!
-                var type = method.DeclaringType;
-                var body = method.Body;
-
-                var key = this._keys.GetValueOrDefault(type);
-                // Get the Decoding Method or create a new one if it doesn't exists.
-                if (!this._decoders.TryGetValue(type, out var decoderMethod))
-                {
-                    var tuple = this.CreateDecodeMethod(ctx.Module, type);
-                    decoderMethod = tuple.Item1;
-                    key = tuple.Item2;
-                    this._decoders.Add(type, decoderMethod);
-                    this._keys.Add(type, key);
-                }
-
-                // Get the index where we would start hooking at.
-                var instructionIndex = body.Instructions.IndexOf(instruction);
-
-                var num = RandomNumberGenerator.GetInt32(int.MaxValue);
-
-                if (instruction.OpCode == OpCodes.Ldstr)
-                {
-                    instruction.Operand = Utility.Xor((string) instruction.Operand, num, key);
-
-                    body.Instructions.Insert(instructionIndex + 1, OpCodes.Ldc_I4.ToInstruction(num));
-
-                    // Insert the call to the decoder method right after we load the param.
-                    body.Instructions.Insert(instructionIndex + 2, OpCodes.Call.ToInstruction(decoderMethod));
-                }
-            }
         }
 
         private Tuple<MethodDef, byte[]> CreateDecodeMethod(ModuleDef mod, TypeDef type)
@@ -307,5 +244,72 @@ namespace Sphinx.Components
 
             return Tuple.Create((MethodDef) method, xorKey);
         }
+
+        #region Phases
+
+        private void Analyze(Context ctx)
+        {
+            foreach (var type in ctx.Module.GetTypes())
+            foreach (var method in type.Methods)
+            {
+                if (!method.HasBody) continue;
+
+                foreach (var instruction in method.Body.Instructions)
+                    if (instruction.OpCode == OpCodes.Ldstr)
+                    {
+                        var operand = (string) instruction.Operand;
+                        if (string.IsNullOrEmpty(operand)) continue;
+                        this._loads.Add(instruction, method);
+                    }
+            }
+        }
+
+        private void Apply(Context ctx)
+        {
+            foreach (var (instruction, method) in this._loads.Where(p => p.Value.DeclaringType.Module == ctx.Module))
+            {
+                // shortcuts!
+                var type = method.DeclaringType;
+                var body = method.Body;
+
+                var key = this._keys.GetValueOrDefault(type);
+                // Get the Decoding Method or create a new one if it doesn't exists.
+                if (!this._decoders.TryGetValue(type, out var decoderMethod))
+                {
+                    var tuple = this.CreateDecodeMethod(ctx.Module, type);
+                    decoderMethod = tuple.Item1;
+                    key = tuple.Item2;
+                    this._decoders.Add(type, decoderMethod);
+                    this._keys.Add(type, key);
+                }
+
+                // Get the index where we would start hooking at.
+                var instructionIndex = body.Instructions.IndexOf(instruction);
+
+                var num = RandomNumberGenerator.GetInt32(int.MaxValue);
+
+                if (instruction.OpCode == OpCodes.Ldstr)
+                {
+                    instruction.Operand = Utility.Xor((string) instruction.Operand, num, key);
+
+                    body.Instructions.Insert(instructionIndex + 1, OpCodes.Ldc_I4.ToInstruction(num));
+
+                    // Insert the call to the decoder method right after we load the param.
+                    body.Instructions.Insert(instructionIndex + 2, OpCodes.Call.ToInstruction(decoderMethod));
+                }
+            }
+        }
+
+        #endregion
+
+        #region Details
+
+        public override string Id => "ConstRemoval";
+        public override string Name => "Constants Removal";
+        public override string Description => "Encodes constants in the code making it harder to read/understand.";
+        public override ComponentUsage Usage => ComponentUsage.Protecting;
+        public override int Priority => 1; // [EX] Should run before the Control Flow, and after the Ref Proxy.
+
+        #endregion
     }
 }

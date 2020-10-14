@@ -15,15 +15,6 @@ namespace Sphinx.Components
             this._logger = logger;
         }
 
-        public override string Id => "InvalidMetadata";
-        public override string Name => "Invalid Metadata";
-
-        public override string Description =>
-            "Adds invalid metadata to modules to prevent disassembler/decompiler from opening them.";
-
-        public override ComponentUsage Usage => ComponentUsage.Protecting;
-        public override int Priority => 0;
-
         public override void Execute(Context ctx, ExecutionPhase phase)
         {
             if (phase != ExecutionPhase.Apply) return;
@@ -129,6 +120,19 @@ namespace Sphinx.Components
                     break;
             }
         }
+
+        #region Details
+
+        public override string Id => "InvalidMetadata";
+        public override string Name => "Invalid Metadata";
+
+        public override string Description =>
+            "Adds invalid metadata to modules to prevent disassembler/decompiler from opening them.";
+
+        public override ComponentUsage Usage => ComponentUsage.Protecting;
+        public override int Priority => 0;
+
+        #endregion
     }
 
     internal class RawHeap : HeapBase

@@ -49,6 +49,7 @@ namespace Sphinx
         ///     Runs the component with a specific executing phase.
         /// </summary>
         /// <param name="ctx"></param>
+        /// <param name="phase"></param>
         public abstract void Execute(Context ctx, ExecutionPhase phase);
 
         public override bool Equals(object obj)
@@ -74,10 +75,10 @@ namespace Sphinx
             {
                 var attr = paramField.GetCustomAttribute<ComponentParamAttribute>();
                 paramField.SetValue(this,
+                    // ReSharper disable once PossibleNullReferenceException
                     ctx.GetParam(paramField.FieldType, $"{this.Id}:{attr.Name}", attr.DefaultValue));
             }
         }
-
 
         /// <summary>
         ///     Compares the component with another, according to <see cref="Usage" /> than <see cref="Priority" />.
