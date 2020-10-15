@@ -2,6 +2,7 @@
 
 namespace Sphinx
 {
+    [AttributeUsage(AttributeTargets.Field)]
     internal sealed class ComponentParamAttribute : Attribute
     {
         public readonly object DefaultValue;
