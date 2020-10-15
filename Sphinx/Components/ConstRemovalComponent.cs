@@ -38,11 +38,11 @@ namespace Sphinx.Components
             RandomNumberGenerator.Fill(xorKey.AsSpan());
 
             // Write the go to a new embedded resource.
-            var resName = Utility.RandomString();
+            var resName = Extensions.RandomString();
             mod.Resources.Add(new EmbeddedResource(resName, xorKey));
 
             // Define a new field to hold the key!
-            var keyField = new FieldDefUser(Utility.RandomString(),
+            var keyField = new FieldDefUser(Extensions.RandomString(),
                 new FieldSig(new SZArraySig(mod.CorLibTypes.Byte)),
                 FieldAttributes.Private | FieldAttributes.Static);
             type.Fields.Add(keyField);
@@ -85,30 +85,30 @@ namespace Sphinx.Components
             #region Method Sig
 
             // Create a private static method with a random name that returns string and takes int32 as arg.
-            var method = new MethodDefUser(Utility.RandomString(),
+            var method = new MethodDefUser(Extensions.RandomString(),
                 MethodSig.CreateStatic(mod.CorLibTypes.String, mod.CorLibTypes.String, mod.CorLibTypes.Int32),
                 MethodImplAttributes.IL | MethodImplAttributes.Managed,
                 MethodAttributes.Private | MethodAttributes.Static | MethodAttributes.HideBySig |
                 MethodAttributes.ReuseSlot);
             // Define the params
-            method.ParamDefs.Add(new ParamDefUser(Utility.RandomString(), 1));
-            method.ParamDefs.Add(new ParamDefUser(Utility.RandomString(), 2));
+            method.ParamDefs.Add(new ParamDefUser(Extensions.RandomString(), 1));
+            method.ParamDefs.Add(new ParamDefUser(Extensions.RandomString(), 2));
 
             #endregion
 
             // Define the method's body.
-            // The implementation of the body is the same as Utility.Xor(s, n, key)
+            // The implementation of the body is the same as Extensions.XOR(s, n, key)
             // the only diff is that it loads the key from the resources.
             var body = new CilBody();
 
             #region Local Variables
 
             // Stream stream;
-            body.Variables.Add(new Local(streamRef.ToTypeSig(), Utility.RandomString()));
+            body.Variables.Add(new Local(streamRef.ToTypeSig(), Extensions.RandomString()));
             // int num;
-            body.Variables.Add(new Local(mod.CorLibTypes.Int32, Utility.RandomString()));
+            body.Variables.Add(new Local(mod.CorLibTypes.Int32, Extensions.RandomString()));
             // char[] array;
-            body.Variables.Add(new Local(new SZArraySig(mod.CorLibTypes.Char), Utility.RandomString()));
+            body.Variables.Add(new Local(new SZArraySig(mod.CorLibTypes.Char), Extensions.RandomString()));
 
             #endregion
 
@@ -290,7 +290,7 @@ namespace Sphinx.Components
 
                 if (instruction.OpCode == OpCodes.Ldstr)
                 {
-                    instruction.Operand = Utility.XOR((string) instruction.Operand, num, key);
+                    instruction.Operand = ((string) instruction.Operand).XOR(num, key);
 
                     body.Instructions.Insert(instructionIndex + 1, OpCodes.Ldc_I4.ToInstruction(num));
 

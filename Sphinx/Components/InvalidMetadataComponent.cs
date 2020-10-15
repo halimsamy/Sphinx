@@ -30,7 +30,7 @@ namespace Sphinx.Components
                 {
                     for (var i = 0; i < RandomNumberGenerator.GetInt32(0, 10); i++)
                     {
-                        var sect = new PESection("." + Utility.RandomString(), 0x40000040);
+                        var sect = new PESection("." + Extensions.RandomString(), 0x40000040);
                         var size = RandomNumberGenerator.GetInt32(0, byte.MaxValue);
                         var data = new byte[size];
                         RandomNumberGenerator.Fill(data.AsSpan());
@@ -85,9 +85,9 @@ namespace Sphinx.Components
                         writer.Metadata.TablesHeap.ENCMapTable.Add(
                             new RawENCMapRow((uint) RandomNumberGenerator.GetInt32(int.MaxValue)));
 
-                    //Utility.Shuffle(writer.MetaData.TablesHeap.NestedClassTable);
-                    Utility.Shuffle(writer.Metadata.TablesHeap.ManifestResourceTable);
-                    //Utility.Shuffle(writer.MetaData.TablesHeap.GenericParamConstraintTable);
+                    //writer.MetaData.TablesHeap.NestedClassTable.Shuffle();
+                    writer.Metadata.TablesHeap.ManifestResourceTable.Shuffle();
+                    //writer.MetaData.TablesHeap.GenericParamConstraintTable.Shuffle();
 
                     // Add extra data. This will break most libraries that open .NET assemblies.
                     // Any value can be written here.
