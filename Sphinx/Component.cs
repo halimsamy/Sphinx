@@ -70,7 +70,8 @@ namespace Sphinx
         /// <param name="ctx"></param>
         public void Switch(Context ctx)
         {
-            foreach (var paramField in this.GetType().GetFields()
+            foreach (var paramField in this.GetType()
+                .GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
                 .Where(f => f.GetCustomAttribute<ComponentParamAttribute>() != null))
             {
                 var attr = paramField.GetCustomAttribute<ComponentParamAttribute>();
