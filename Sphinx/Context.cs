@@ -5,6 +5,7 @@ using System.Linq;
 using dnlib.DotNet;
 using dnlib.DotNet.Writer;
 using Microsoft.Extensions.Configuration;
+using Sphinx.Services;
 
 namespace Sphinx
 {
@@ -16,6 +17,7 @@ namespace Sphinx
         public readonly string Name;
         public readonly ModuleDefMD Module;
         public readonly ModuleWriterOptions WriterOptions;
+        public readonly TraceService TraceService;
 
         public Context(string name, ModuleDefMD module)
         {
@@ -25,6 +27,7 @@ namespace Sphinx
             {
                 WritePdb = this.GetParam("WritePdb", true)
             };
+            this.TraceService = new TraceService();
         }
 
         /// <summary>
