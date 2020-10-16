@@ -14,20 +14,19 @@ namespace Sphinx.Components
             this._logger = logger;
         }
 
-        public override void Execute(Context ctx, ExecutionPhase phase)
+
+        [ComponentExecutionPoint(ExecutionPhase.Apply)]
+        private void Apply()
         {
-            if (phase != ExecutionPhase.Apply) return;
+            var attrRef = this.Context.Module.CorLibTypes
+                .GetTypeRef("System.Runtime.CompilerServices", "SuppressIldasmAttribute");
 
-            var attrRef =
-                ctx.Module.CorLibTypes
-                    .GetTypeRef("System.Runtime.CompilerServices", "SuppressIldasmAttribute");
-
-            var ctorRef = new MemberRefUser(ctx.Module, ".ctor",
-                MethodSig.CreateInstance(ctx.Module.CorLibTypes.Void), attrRef);
+            var ctorRef = new MemberRefUser(this.Context.Module, ".ctor",
+                MethodSig.CreateInstance(this.Context.Module.CorLibTypes.Void), attrRef);
 
             var attr = new CustomAttribute(ctorRef);
-            if (ctx.Module.CustomAttributes.All(a => a.ToString() != attr.ToString()))
-                ctx.Module.CustomAttributes.Add(attr);
+            if (this.Context.Module.CustomAttributes.All(a => a.ToString() != attr.ToString()))
+                this.Context.Module.CustomAttributes.Add(attr);
         }
 
         #region Details

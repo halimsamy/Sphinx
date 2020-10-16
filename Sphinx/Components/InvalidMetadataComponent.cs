@@ -15,10 +15,10 @@ namespace Sphinx.Components
             this._logger = logger;
         }
 
-        public override void Execute(Context ctx, ExecutionPhase phase)
+        [ComponentExecutionPoint(ExecutionPhase.Apply)]
+        private void Apply()
         {
-            if (phase != ExecutionPhase.Apply) return;
-            ctx.WriterOptions.WriterEvent += this.WriterOptions_WriterEvent;
+            this.Context.WriterOptions.WriterEvent += this.WriterOptions_WriterEvent;
         }
 
         private void WriterOptions_WriterEvent(object sender, ModuleWriterEventArgs e)

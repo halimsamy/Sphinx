@@ -36,6 +36,11 @@ namespace Sphinx
         public abstract int Priority { get; }
 
         /// <summary>
+        ///     The current context.
+        /// </summary>
+        public Context Context { get; set; }
+
+        /// <summary>
         ///     Resolves all types that inherits <see cref="Component" />.
         /// </summary>
         /// <returns>All types of <see cref="Component" />s</returns>
@@ -44,13 +49,6 @@ namespace Sphinx
             return typeof(Program).Assembly.GetTypes()
                 .Where(type => !type.IsAbstract && typeof(Component).IsAssignableFrom(type)).ToList();
         }
-
-        /// <summary>
-        ///     Runs the component with a specific executing phase.
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="phase"></param>
-        public abstract void Execute(Context ctx, ExecutionPhase phase);
 
         public override bool Equals(object obj)
         {
@@ -65,11 +63,29 @@ namespace Sphinx
         }
 
         /// <summary>
+        ///     Runs the component with a specific executing phase.
+        /// </summary>
+        /// <param name="phase"></param>
+        public void Execute(ExecutionPhase phase)
+        {
+            foreach (var method in this.GetType()
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+                .Where(m => m.GetCustomAttribute<ComponentExecutionPointAttribute>() != null))
+            {
+                var attr = method.GetCustomAttribute<ComponentExecutionPointAttribute>();
+                if (attr.Phase == phase)
+                    method.Invoke(this, new object[0]);
+            }
+        }
+
+        /// <summary>
         ///     Switch the Component Params to the given Context.
         /// </summary>
         /// <param name="ctx"></param>
         public void Switch(Context ctx)
         {
+            this.Context = ctx;
+
             foreach (var paramField in this.GetType()
                 .GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
                 .Where(f => f.GetCustomAttribute<ComponentParamAttribute>() != null))

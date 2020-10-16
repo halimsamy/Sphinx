@@ -25,12 +25,6 @@ namespace Sphinx.Components
         }
 
 
-        public override void Execute(Context ctx, ExecutionPhase phase)
-        {
-            if (phase == ExecutionPhase.Analyze) this.Analyze(ctx);
-            else if (phase == ExecutionPhase.Apply) this.Apply(ctx);
-        }
-
         private Tuple<MethodDef, byte[]> CreateDecodeMethod(ModuleDef mod, TypeDef type)
         {
             // Generate the Key.
@@ -247,9 +241,10 @@ namespace Sphinx.Components
 
         #region Phases
 
-        private void Analyze(Context ctx)
+        [ComponentExecutionPoint(ExecutionPhase.Analyze)]
+        private void Analyze()
         {
-            foreach (var type in ctx.Module.GetTypes())
+            foreach (var type in this.Context.Module.GetTypes())
             foreach (var method in type.Methods)
             {
                 if (!method.HasBody) continue;
@@ -264,9 +259,11 @@ namespace Sphinx.Components
             }
         }
 
-        private void Apply(Context ctx)
+        [ComponentExecutionPoint(ExecutionPhase.Apply)]
+        private void Apply()
         {
-            foreach (var (instruction, method) in this._loads.Where(p => p.Value.DeclaringType.Module == ctx.Module))
+            foreach (var (instruction, method) in this._loads
+                .Where(p => p.Value.DeclaringType.Module == this.Context.Module))
             {
                 // shortcuts!
                 var type = method.DeclaringType;
@@ -276,7 +273,7 @@ namespace Sphinx.Components
                 // Get the Decoding Method or create a new one if it doesn't exists.
                 if (!this._decoders.TryGetValue(type, out var decoderMethod))
                 {
-                    var tuple = this.CreateDecodeMethod(ctx.Module, type);
+                    var tuple = this.CreateDecodeMethod(this.Context.Module, type);
                     decoderMethod = tuple.Item1;
                     key = tuple.Item2;
                     this._decoders.Add(type, decoderMethod);

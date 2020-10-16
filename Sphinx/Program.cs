@@ -63,7 +63,7 @@ namespace Sphinx
                                 foreach (var context in contexts.Where(context => context.IsEnabled(component)))
                                 {
                                     component.Switch(context);
-                                    component.Execute(context, phase);
+                                    component.Execute(phase);
                                 }
                             }
                         }
