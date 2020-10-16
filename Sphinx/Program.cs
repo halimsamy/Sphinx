@@ -57,7 +57,7 @@ namespace Sphinx
                         {
                             Logger.Info($"Applying '{component.Name}'...");
 
-                            for (ExecutionPhase phase = 0; phase <= ExecutionPhase.Finalize; phase++)
+                            for (ExecutionPhase phase = 0; phase <= ExecutionPhase.Finishes; phase++)
                             {
                                 Logger.Trace($"'{component.Name}' {phase} phase...");
                                 foreach (var context in contexts.Where(context => context.IsEnabled(component)))

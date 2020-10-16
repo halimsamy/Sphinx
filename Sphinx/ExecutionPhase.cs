@@ -4,6 +4,6 @@
     {
         Analyze,
         Apply,
-        Finalize
+        Finishes
     }
 }
