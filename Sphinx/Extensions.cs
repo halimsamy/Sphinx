@@ -128,22 +128,6 @@ namespace Sphinx
             }
         }
 
-        /// <summary>
-        ///     Gets the value associated with the specified key, or default value if the key does not exists.
-        /// </summary>
-        /// <typeparam name="TKey">The type of the key.</typeparam>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="key">The key of the value to get.</param>
-        /// <param name="defValue">The default value.</param>
-        /// <returns>The value associated with the specified key, or the default value if the key does not exists</returns>
-        public static TValue GetValueOrDefault<TKey, TValue>(
-            this Dictionary<TKey, TValue> dictionary,
-            TKey key,
-            TValue defValue = default)
-        {
-            return dictionary.TryGetValue(key, out var ret) ? ret : defValue;
-        }
 
         /// <summary>
         ///     Gets the value associated with the specified key, or default value if the key does not exists.
