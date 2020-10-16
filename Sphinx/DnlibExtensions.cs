@@ -16,9 +16,34 @@ namespace Sphinx
         /// </summary>
         /// <param name="module">The module.</param>
         /// <returns>A collection of all required definitions</returns>
-        public static IEnumerable<IDnlibDef> FindDefinitions(this ModuleDef module)
+        public static IEnumerable<IDnlibDef> GetDefinitions(this ModuleDef module)
         {
             yield return module;
+            foreach (var type in module.GetTypes())
+            {
+                yield return type;
+
+                foreach (var method in type.Methods)
+                    yield return method;
+
+                foreach (var field in type.Fields)
+                    yield return field;
+
+                foreach (var prop in type.Properties)
+                    yield return prop;
+
+                foreach (var evt in type.Events)
+                    yield return evt;
+            }
+        }
+
+        /// <summary>
+        ///     Finds all members of interest in a module.
+        /// </summary>
+        /// <param name="module">The module.</param>
+        /// <returns>A collection of all required definitions</returns>
+        public static IEnumerable<IMemberDef> GetMembers(this ModuleDef module)
+        {
             foreach (var type in module.GetTypes())
             {
                 yield return type;
@@ -42,7 +67,7 @@ namespace Sphinx
         /// </summary>
         /// <param name="typeDef">The type.</param>
         /// <returns>A collection of all required definitions</returns>
-        public static IEnumerable<IDnlibDef> FindDefinitions(this TypeDef typeDef)
+        public static IEnumerable<IDnlibDef> GetDefinitions(this TypeDef typeDef)
         {
             yield return typeDef;
 
@@ -60,6 +85,55 @@ namespace Sphinx
 
             foreach (var evt in typeDef.Events)
                 yield return evt;
+        }
+
+        /// <summary>
+        ///     Finds all members of interest in a type.
+        /// </summary>
+        /// <param name="typeDef">The type.</param>
+        /// <returns>A collection of all required definitions</returns>
+        public static IEnumerable<IMemberDef> GetMembers(this TypeDef typeDef)
+        {
+            yield return typeDef;
+
+            foreach (var nestedType in typeDef.NestedTypes)
+                yield return nestedType;
+
+            foreach (var method in typeDef.Methods)
+                yield return method;
+
+            foreach (var field in typeDef.Fields)
+                yield return field;
+
+            foreach (var prop in typeDef.Properties)
+                yield return prop;
+
+            foreach (var evt in typeDef.Events)
+                yield return evt;
+        }
+
+        /// <summary>
+        ///     Determines whether the specified member is visible outside the containing assembly.
+        /// </summary>
+        /// <param name="memberDef">The member.</param>
+        /// <param name="exeNonPublic">Visibility of executable modules.</param>
+        /// <returns><c>true</c> if the specified member is visible outside the containing assembly; otherwise, <c>false</c>.</returns>
+        public static bool IsVisibleOutside(this IMemberDef memberDef, bool exeNonPublic = true)
+        {
+            // Assume executable modules' member is not visible
+            if (exeNonPublic &&
+                (memberDef.Module.Kind == ModuleKind.Windows || memberDef.Module.Kind == ModuleKind.Console))
+                return false;
+
+            return memberDef switch
+            {
+                MethodDef methodDef => methodDef.IsVisibleOutside(),
+                FieldDef fieldDef => fieldDef.IsVisibleOutside(),
+                EventDef eventDef => eventDef.IsVisibleOutside(),
+                PropertyDef propertyDef => propertyDef.IsVisibleOutside(),
+                TypeDef typeDef => typeDef.IsVisibleOutside(exeNonPublic),
+                _ => true
+            };
         }
 
         /// <summary>
