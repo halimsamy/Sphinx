@@ -14,6 +14,8 @@ namespace Sphinx
     /// </summary>
     public class Context
     {
+        private static List<Context> _contexts;
+
         public readonly string Name;
         public readonly ModuleDefMD Module;
         public readonly ModuleWriterOptions WriterOptions;
@@ -30,17 +32,21 @@ namespace Sphinx
             this.TraceService = new TraceService();
         }
 
-        /// <summary>
-        ///     Resolve all Contexts.
-        /// </summary>
-        /// <returns></returns>
-        public static List<Context> Resolve()
+        public static List<Context> Contexts
         {
-            var modCtx = ModuleDef.CreateModuleContext();
+            get
+            {
+                if (_contexts == null)
+                {
+                    var modCtx = ModuleDef.CreateModuleContext();
 
-            return Program.Config.GetSection("Target").GetChildren().Select(t =>
-                    new Context(t.Key, ModuleDefMD.Load(t.GetValue<string>("InputFile"), modCtx)))
-                .ToList();
+                    _contexts = Program.Config.GetSection("Target").GetChildren().Select(t =>
+                            new Context(t.Key, ModuleDefMD.Load(t.GetValue<string>("InputFile"), modCtx)))
+                        .ToList();
+                }
+
+                return _contexts;
+            }
         }
 
         public T GetParam<T>(string key, T defaultValue = default)

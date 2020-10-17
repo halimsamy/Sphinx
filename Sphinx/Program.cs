@@ -37,7 +37,7 @@ namespace Sphinx
                 stopwatch.Start();
 
                 Logger.Info("Loading targets...");
-                var contexts = Context.Resolve();
+                var contexts = Context.Contexts;
 
                 if (contexts.Count > 0)
                 {
