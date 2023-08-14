@@ -15,6 +15,8 @@ namespace Sphinx
     public class Context
     {
         private static List<Context> _contexts;
+        public static AssemblyResolver Resolver;
+        public static readonly Annotations Annotations = new Annotations();
 
         public readonly string Name;
         public readonly ModuleDefMD Module;
@@ -24,6 +26,8 @@ namespace Sphinx
         public Context(string name, ModuleDefMD module)
         {
             this.Name = name;
+            module.EnableTypeDefFindCache = false;
+            Resolver.AddToCache(module);
             this.Module = module;
             this.WriterOptions = new ModuleWriterOptions(module)
             {
@@ -38,10 +42,23 @@ namespace Sphinx
             {
                 if (_contexts == null)
                 {
-                    var modCtx = ModuleDef.CreateModuleContext();
+                    Resolver = new AssemblyResolver
+                    {
+                        // TODO: If it's a .NET Core assembly, you'll need to disable GAC loading and add .NET Core reference assembly search paths.
+                        UseGAC = false,
+                        EnableTypeDefCache = false
+                    };
+                    Resolver.DefaultModuleContext = new ModuleContext(Resolver);
+                    //Resolver.PostSearchPaths.Insert(0, Path.Combine(context.BaseDirectory, probePath));
+                    Resolver.PostSearchPaths.Insert(0,
+                        @"C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\3.1.0\ref\netcoreapp3.1");
+                    Resolver.PostSearchPaths.Insert(0,
+                        @"C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\3.1.0\ref\netcoreapp3.1");
+
 
                     _contexts = Program.Config.GetSection("Target").GetChildren().Select(t =>
-                            new Context(t.Key, ModuleDefMD.Load(t.GetValue<string>("InputFile"), modCtx)))
+                            new Context(t.Key,
+                                ModuleDefMD.Load(t.GetValue<string>("InputFile"), Resolver.DefaultModuleContext)))
                         .ToList();
                 }
 
